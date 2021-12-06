@@ -6,7 +6,6 @@ const pomodoroCounterDisplayElement = document.getElementById(
 const pomodoroFormElement = document.getElementsByClassName("pomorodoForm")[0];
 const minuteInputElement = document.getElementById("minutesInputText");
 const secondInputElement = document.getElementById("secondsInputText");
-//pomodoroErrorList
 const pomodoroListOfErrorsElement =
   document.getElementById("pomodoroErrorList");
 const addPomodoroToListButton = document.getElementById("pomorodoForm-addBtn");
@@ -15,26 +14,32 @@ const startOrPauseAPomodoroFromListButton = document.getElementById(
   "pomorodoForm-StartPauseBtn"
 );
 
-let minutesInputGlobal;
-let secondsInputGlobal;
+let minutesInputGlobal = 0;
+let secondsInputGlobal = 0;
 
+//minutes user interface - conversion to number
 minuteInputElement.addEventListener("input", (e) => {
   addPomodoroToListButton.removeAttribute("disabled");
   paddedMinutes = String(minuteInputElement.value).padStart(2, "0");
+  if (paddedMinutes.charAt(2) !== "") {
+    paddedMinutes = paddedMinutes.slice(1);
+  }
   minuteInputElement.value = paddedMinutes;
-  let minutesInput = Number(minuteInputElement.value);
-  minutesInputGlobal = minutesInput;
+  minutesInputGlobal = paddedMinutes;
 });
 
+//seconds user interface - conversion to number
 secondInputElement.addEventListener("input", (e) => {
   addPomodoroToListButton.removeAttribute("disabled");
   paddedSeconds = String(secondInputElement.value).padStart(2, "0");
+  if (paddedSeconds.charAt(2) !== "") {
+    paddedSeconds = paddedSeconds.slice(1);
+  }
   secondInputElement.value = paddedSeconds;
-  let secondsInput = Number(paddedSeconds);
-  console.log(typeof secondsInput);
-  secondsInputGlobal = secondsInput;
+  secondsInputGlobal = paddedSeconds;
 });
 
+//add button - add input time to countdown timer display
 addPomodoroToListButton.addEventListener("click", (e) => {
   startOrPauseAPomodoroFromListButton.removeAttribute("disabled");
   pomodoroCounterDisplayElement.innerHTML = `${String(
@@ -42,34 +47,44 @@ addPomodoroToListButton.addEventListener("click", (e) => {
   ).padStart(2, "0")} : ${String(secondInputElement.value).padStart(2, "0")}`;
 });
 
+//clock function
 const changeImages = () => {
-  if (secondsInputGlobal > 1) {
+  if (secondsInputGlobal > 1 && minutesInputGlobal > 0) {
     secondsInputGlobal--;
-    pomodoroCounterDisplayElement.innerHTML = `${minutesInputGlobal} : ${secondsInputGlobal}`;
-  } else if (secondsInputGlobal === 1 && minutesInputGlobal !== 0) {
+    pomodoroCounterDisplayElement.innerHTML = `${String(
+      minutesInputGlobal
+    ).padStart(2, "0")} : ${String(secondsInputGlobal).padStart(2, "0")}`;
+    console.log("1");
+  } else if (secondsInputGlobal === 1 && minutesInputGlobal > 0) {
     secondsInputGlobal = 60;
     minutesInputGlobal--;
-    pomodoroCounterDisplayElement.innerHTML = `${minutesInputGlobal} : ${secondsInputGlobal}`;
+    pomodoroCounterDisplayElement.innerHTML = `${String(
+      minutesInputGlobal
+    ).padStart(2, "0")} : ${String(secondsInputGlobal).padStart(2, "0")}`;
+  } else if (secondsInputGlobal > 0 && minutesInputGlobal == 0) {
+    secondsInputGlobal--;
+    pomodoroCounterDisplayElement.innerHTML = `${String(
+      minutesInputGlobal
+    ).padStart(2, "0")} : ${String(secondsInputGlobal).padStart(2, "0")}`;
+  } else if (secondsInputGlobal == 0 && minutesInputGlobal > 0) {
+    secondsInputGlobal = 60;
+    minutesInputGlobal--;
+    pomodoroCounterDisplayElement.innerHTML = `${String(
+      minutesInputGlobal
+    ).padStart(2, "0")} : ${String(secondsInputGlobal).padStart(2, "0")}`;
   } else {
     pomodoroListOfErrorsElement.innerHTML = "TIME'S UP!";
+    pomodoroCounterDisplayElement.innerHTML = `${String(
+      minutesInputGlobal
+    ).padStart(2, "0")} : ${String(secondsInputGlobal).padStart(2, "0")}`;
+    clearInterval(intervalTimer);
+    console.log("will log once if interval stopped");
   }
 };
 
+//start button - calls clock function every second
 startOrPauseAPomodoroFromListButton.addEventListener("click", (e) => {
-  setInterval(() => {
+  let intervalTimer = setInterval(() => {
     changeImages();
   }, 1000);
 });
-
-// let array = [3, 5, 26, 4];
-
-// redBox.addEventListener("click", (e) => {
-//   redBox.classList.toggle("greenbox", array.length > 2);
-//   array.pop(); // changes back to red on the third click
-//   console.log(array); // [3, 5]
-// });
-
-//  document.addEventListener("click", (e) => {
-//    console.log("click detected");
-//    clearInterval(intervalForImages);
-//  });
